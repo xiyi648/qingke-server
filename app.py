@@ -1,17 +1,25 @@
 from flask import Flask, render_template, send_from_directory, url_for, request
-import os, base64
+import os
+import base64
 
+# 初始化Flask应用，指定模板和静态文件目录
 app = Flask(__name__, template_folder='templates', static_folder='static')
 
-# 图片转码（一行实现搜索+编码）
-get_img = lambda k: next(
-    (base64.b64encode(open(os.path.join(app.static_folder, f), 'rb').read()).decode() 
-     for f in os.listdir(app.static_folder) if k in f and f.split('.')[-1] in ['png', 'jpg', 'jpeg']), 
-    ''
-)
+# 图片处理函数：搜索静态目录下的图片并转Base64
+def get_image_base64(keyword):
+    """
+    搜索static目录中含关键词的图片，转换为Base64字符串
+    :param keyword: 图片名称关键词（如"青客联盟图标"）
+    :return: Base64编码字符串（图片不存在则返回空）
+    """
+    for filename in os.listdir(app.static_folder):
+        if keyword in filename and filename.split('.')[-1] in ['png', 'jpg', 'jpeg']:
+            with open(os.path.join(app.static_folder, filename), 'rb') as img_file:
+                return base64.b64encode(img_file.read()).decode()
+    return ""
 
-# 哲学社信件（完整保留）
-letter = """福清一中“凌空”哲学社给新生们的一封信
+# 哲学社信件内容（完整保留，前端{{ letter }}依赖）
+PHILOSOPHY_LETTER = """福清一中“凌空”哲学社给新生们的一封信
 
 To 即将进入一中的学弟学妹们：
 
@@ -44,16 +52,18 @@ P.S. 最后的最后，若有意愿加入哲学社者，请扫码入群了解更
 某副社长
 2025年七月于凤凰山"""
 
-# 前端依赖数据（极致压缩，修复上下文问题）
-d = {
-    "p": [  # people简写
+# 前端依赖的动态数据（完整保留，变量名与模板对齐）
+DATA = {
+    # 成员信息
+    "people": [
         {"name": "知天易", "title": "盟主", "intro": "曾获物理竞赛省一"},
         {"name": "潦草杂草汤", "title": "文科部主任", "intro": "曾获福清市新时代好少年"},
         {"name": "风吹不动", "title": "副盟主", "intro": "创始人，啥也不是"},
         {"name": "被猫吃了", "title": "联盟驻信息社外交官", "intro": "尊贵的菁英班大佬"},
         {"name": "蓝莓酸", "title": "测试部主任", "intro": "文娱部民乐组组长"}
     ],
-    "t": [  # timeline简写
+    # 时间线
+    "timeline": [
         {"date": "2025/02/03", "event": "风吹不动和潦草杂草汤 用钱帮助了一位在寒风中辛苦卖菜的削瘦老人，青客联盟的精神由此萌发 "},
         {"date": "2025/07/13", "event": "风吹不动发布了一款针对信息社网站的一键猜分程序，并且创立了青客联盟"},
         {"date": "2025/07/15", "event": "一致通过知天易建议，风吹不动开放「一元代做综评」源代码"},
@@ -61,42 +71,72 @@ d = {
         {"date": "2025/08/08", "event": "知天易接任盟主，册封蓝莓酸，被猫吃了头衔"},
         {"date": "2025/08/16", "event": "为了纪念日本宣布无条件投降80周年风吹不动和潦草杂草汤用Python开发了一款文字游戏《青春记忆1931-1945》，并上传抖音。隔日风吹不动调整联盟职责归属：知天易仍为盟主，风吹不动为副盟主，蓝莓酸为测试部主任，被猫吃了为联盟驻信息社外交官，潦草杂草汤为文科部主任"}
     ],
-    "qq": "874636477",
-    "link": {"name": "福清一中信息社", "url": "https://guess.gsqclub.cn/account/registerStep1.php"},
-    "license": "MIT License",
-    "btn": "「凌空」哲学社，来看看吗？",
-    "res": []  # 先占位，后续上下文内生成
+    # 静态配置
+    "qq_group": "874636477",
+    "friend_link": {"name": "福清一中信息社", "url": "https://guess.gsqclub.cn/account/registerStep1.php"},
+    "open_source_license": "MIT License",
+    "philosophy_button": "「凌空」哲学社，来看看吗？",
+    # 资源下载（先占位，后续上下文内生成）
+    "resources": []
 }
 
-# 修复：在应用上下文中生成资源列表（解决url_for的上下文问题）
+# 修复：在应用上下文内生成资源列表（解决url_for的端点识别问题）
 with app.test_request_context():
     download_dir = os.path.join(app.static_folder, 'download')
     if os.path.exists(download_dir):
-        d["res"] = [
-            {"name": f, "url": url_for('d', filename=f)} 
-            for f in os.listdir(download_dir) if os.path.isfile(os.path.join(download_dir, f))
+        DATA["resources"] = [
+            {
+                "name": filename, 
+                "url": url_for('download_file', filename=filename)  # 显式调用正确的路由端点
+            } 
+            for filename in os.listdir(download_dir) 
+            if os.path.isfile(os.path.join(download_dir, filename))
         ]
 
-# 路由（极简实现）
-@app.route('/d/<filename>')
-def d(filename): 
-    return send_from_directory(os.path.join(app.static_folder, 'download'), filename, as_attachment=True)
+# ---------------------- 路由定义（与url_for调用的端点严格一致） ---------------------- #
+@app.route('/download/<filename>')
+def download_file(filename):
+    """资源下载路由：前端资源模块依赖"""
+    download_path = os.path.join(app.static_folder, 'download', filename)
+    if os.path.exists(download_path):
+        return send_from_directory(os.path.dirname(download_path), filename, as_attachment=True)
+    return "文件未找到", 404
 
 @app.route('/philosophy')
-def philosophy(): 
-    return render_template('philosophy.html', letter=letter, poster=get_img("哲学社海报"), qr_code=get_img("哲学社二维码"), logo=get_img("哲学社图标"))
-
-@app.route('/')
-def i():
-    m = 'mobile' in request.user_agent.string.lower()
+def philosophy_page():
+    """哲学社页面：前端哲学社模块跳转依赖"""
     return render_template(
-        'mobile_index.html' if m else 'pc_index.html',
-        logo_b64=get_img("青客联盟图标"), qrcode_b64=get_img("青客联盟二维码"),
-        poster_b64=get_img("文娱部宣传海报"), philosophy_icon=get_img("哲学社图标"),
-        philosophy_link=url_for('philosophy'),
-        people=d["p"], timeline=d["t"], qq_group=d["qq"], friend_link=d["link"],
-        open_source_license=d["license"], philosophy_button=d["btn"], resources=d["res"]
+        'philosophy.html',
+        letter=PHILOSOPHY_LETTER,
+        poster=get_image_base64("哲学社海报"),
+        qr_code=get_image_base64("哲学社二维码"),
+        logo=get_image_base64("哲学社图标")
     )
 
-if __name__ == '__main__': 
-    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=False)
+@app.route('/')
+def index_page():
+    """首页：前端所有模块依赖"""
+    # 判断设备类型（移动端/PC端）
+    is_mobile = 'mobile' in request.user_agent.string.lower()
+    template_name = 'mobile_index.html' if is_mobile else 'pc_index.html'
+    
+    # 预加载图片Base64（与前端变量名严格对齐）
+    image_data = {
+        "logo_b64": get_image_base64("青客联盟图标"),
+        "qrcode_b64": get_image_base64("青客联盟二维码"),
+        "poster_b64": get_image_base64("文娱部宣传海报"),
+        "philosophy_icon": get_image_base64("哲学社图标"),
+        "philosophy_link": url_for('philosophy_page')
+    }
+    
+    # 合并所有数据传递给模板
+    return render_template(
+        template_name,
+        **image_data,
+        **DATA
+    )
+
+# ---------------------- 启动配置（适配Render平台动态端口） ---------------------- #
+if __name__ == '__main__':
+    port = int(os.environ.get('PORT', 5000))  # 自动适配Render分配的端口
+    app.run(host='0.0.0.0', port=port, debug=False)
