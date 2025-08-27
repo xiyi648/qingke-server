@@ -4,7 +4,11 @@ import os, base64
 app = Flask(__name__, template_folder='templates', static_folder='static')
 
 # 图片转码（一行实现搜索+编码）
-get_img = lambda k: next((base64.b64encode(open(os.path.join(app.static_folder,f),'rb').read()).decode() for f in os.listdir(app.static_folder) if k in f and f.split('.')[-1] in ['png','jpg','jpeg']), '')
+get_img = lambda k: next(
+    (base64.b64encode(open(os.path.join(app.static_folder, f), 'rb').read()).decode() 
+     for f in os.listdir(app.static_folder) if k in f and f.split('.')[-1] in ['png', 'jpg', 'jpeg']), 
+    ''
+)
 
 # 哲学社信件（完整保留）
 letter = """福清一中“凌空”哲学社给新生们的一封信
@@ -40,7 +44,7 @@ P.S. 最后的最后，若有意愿加入哲学社者，请扫码入群了解更
 某副社长
 2025年七月于凤凰山"""
 
-# 前端依赖数据（极致压缩）
+# 前端依赖数据（极致压缩，修复上下文问题）
 d = {
     "p": [  # people简写
         {"name": "知天易", "title": "盟主", "intro": "曾获物理竞赛省一"},
@@ -61,15 +65,26 @@ d = {
     "link": {"name": "福清一中信息社", "url": "https://guess.gsqclub.cn/account/registerStep1.php"},
     "license": "MIT License",
     "btn": "「凌空」哲学社，来看看吗？",
-    "res": [{"name":f,"url":url_for('d',filename=f)} for f in os.listdir(os.path.join(app.static_folder,'download')) if os.path.isfile(os.path.join(app.static_folder,'download',f))] if os.path.exists(os.path.join(app.static_folder,'download')) else []
+    "res": []  # 先占位，后续上下文内生成
 }
+
+# 修复：在应用上下文中生成资源列表（解决url_for的上下文问题）
+with app.test_request_context():
+    download_dir = os.path.join(app.static_folder, 'download')
+    if os.path.exists(download_dir):
+        d["res"] = [
+            {"name": f, "url": url_for('d', filename=f)} 
+            for f in os.listdir(download_dir) if os.path.isfile(os.path.join(download_dir, f))
+        ]
 
 # 路由（极简实现）
 @app.route('/d/<filename>')
-def d(filename): return send_from_directory(os.path.join(app.static_folder,'download'), filename, as_attachment=True)
+def d(filename): 
+    return send_from_directory(os.path.join(app.static_folder, 'download'), filename, as_attachment=True)
 
 @app.route('/philosophy')
-def philosophy(): return render_template('philosophy.html', letter=letter, poster=get_img("哲学社海报"), qr_code=get_img("哲学社二维码"), logo=get_img("哲学社图标"))
+def philosophy(): 
+    return render_template('philosophy.html', letter=letter, poster=get_img("哲学社海报"), qr_code=get_img("哲学社二维码"), logo=get_img("哲学社图标"))
 
 @app.route('/')
 def i():
@@ -83,4 +98,5 @@ def i():
         open_source_license=d["license"], philosophy_button=d["btn"], resources=d["res"]
     )
 
-if __name__ == '__main__': app.run(host='0.0.0.0', port=int(os.environ.get('PORT',5000)), debug=False)
+if __name__ == '__main__': 
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=False)
