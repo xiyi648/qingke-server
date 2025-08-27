@@ -1,22 +1,13 @@
-from flask import Flask, render_template, url_for, request
-import os
-import base64
+from flask import Flask, render_template, send_from_directory, url_for, request
+import os, base64
 
-# 仅初始化核心Flask（无任何多余配置）
 app = Flask(__name__, template_folder='templates', static_folder='static')
 
-# ---------------------- 仅保留前端必需的工具函数 ---------------------- #
-def get_image_b64(keyword):
-    """简化图片搜索：直接查找static目录下含关键词的图片"""
-    for file in os.listdir(app.static_folder):
-        if keyword in file and file.split('.')[-1] in ['png', 'jpg', 'jpeg']:
-            with open(os.path.join(app.static_folder, file), 'rb') as f:
-                return base64.b64encode(f.read()).decode()
-    return ""  # 图片缺失时返回空（前端显示空白，不崩溃）
+# 图片转码（一行实现搜索+编码）
+get_img = lambda k: next((base64.b64encode(open(os.path.join(app.static_folder,f),'rb').read()).decode() for f in os.listdir(app.static_folder) if k in f and f.split('.')[-1] in ['png','jpg','jpeg']), '')
 
-# ---------------------- 前端必需数据（仅保留核心字段） ---------------------- #
-# 哲学社信件（完整保留，前端必需）
-philosophy_letter = """福清一中“凌空”哲学社给新生们的一封信
+# 哲学社信件（完整保留）
+letter = """福清一中“凌空”哲学社给新生们的一封信
 
 To 即将进入一中的学弟学妹们：
 
@@ -49,16 +40,16 @@ P.S. 最后的最后，若有意愿加入哲学社者，请扫码入群了解更
 某副社长
 2025年七月于凤凰山"""
 
-# 核心数据（仅保留前端模板中直接引用的字段）
-data = {
-    "people": [
+# 前端依赖数据（极致压缩）
+d = {
+    "p": [  # people简写
         {"name": "知天易", "title": "盟主", "intro": "曾获物理竞赛省一"},
         {"name": "潦草杂草汤", "title": "文科部主任", "intro": "曾获福清市新时代好少年"},
         {"name": "风吹不动", "title": "副盟主", "intro": "创始人，啥也不是"},
         {"name": "被猫吃了", "title": "联盟驻信息社外交官", "intro": "尊贵的菁英班大佬"},
         {"name": "蓝莓酸", "title": "测试部主任", "intro": "文娱部民乐组组长"}
     ],
-    "timeline": [
+    "t": [  # timeline简写
         {"date": "2025/02/03", "event": "风吹不动和潦草杂草汤 用钱帮助了一位在寒风中辛苦卖菜的削瘦老人，青客联盟的精神由此萌发 "},
         {"date": "2025/07/13", "event": "风吹不动发布了一款针对信息社网站的一键猜分程序，并且创立了青客联盟"},
         {"date": "2025/07/15", "event": "一致通过知天易建议，风吹不动开放「一元代做综评」源代码"},
@@ -66,39 +57,30 @@ data = {
         {"date": "2025/08/08", "event": "知天易接任盟主，册封蓝莓酸，被猫吃了头衔"},
         {"date": "2025/08/16", "event": "为了纪念日本宣布无条件投降80周年风吹不动和潦草杂草汤用Python开发了一款文字游戏《青春记忆1931-1945》，并上传抖音。隔日风吹不动调整联盟职责归属：知天易仍为盟主，风吹不动为副盟主，蓝莓酸为测试部主任，被猫吃了为联盟驻信息社外交官，潦草杂草汤为文科部主任"}
     ],
-    "qq_group": "874636477",
-    "friend_link": {"name": "福清一中信息社", "url": "https://guess.gsqclub.cn/account/registerStep1.php"},
-    "open_source_license": "MIT License",
-    "philosophy_button": "「凌空」哲学社，来看看吗？"
+    "qq": "874636477",
+    "link": {"name": "福清一中信息社", "url": "https://guess.gsqclub.cn/account/registerStep1.php"},
+    "license": "MIT License",
+    "btn": "「凌空」哲学社，来看看吗？",
+    "res": [{"name":f,"url":url_for('d',filename=f)} for f in os.listdir(os.path.join(app.static_folder,'download')) if os.path.isfile(os.path.join(app.static_folder,'download',f))] if os.path.exists(os.path.join(app.static_folder,'download')) else []
 }
 
-# ---------------------- 仅保留必需路由 ---------------------- #
-@app.route('/')
-def index():
-    # 移动端判断（仅保留核心逻辑）
-    is_mobile = 'mobile' in request.user_agent.string.lower()
-    template = 'mobile_index.html' if is_mobile else 'pc_index.html'
-    
-    # 动态生成前端必需的图片Base64（与模板变量严格对齐）
-    return render_template(template,
-        logo_b64=get_image_b64("青客联盟图标"),
-        qrcode_b64=get_image_b64("青客联盟二维码"),
-        poster_b64=get_image_b64("文娱部宣传海报"),
-        philosophy_icon=get_image_b64("哲学社图标"),
-        philosophy_link=url_for('philosophy'),
-        **data  # 展开所有核心数据
-    )
+# 路由（极简实现）
+@app.route('/d/<filename>')
+def d(filename): return send_from_directory(os.path.join(app.static_folder,'download'), filename, as_attachment=True)
 
 @app.route('/philosophy')
-def philosophy():
-    # 哲学社页面：仅传递前端必需字段
-    return render_template('philosophy.html',
-        letter=philosophy_letter,
-        poster=get_image_b64("哲学社海报"),
-        qr_code=get_image_b64("哲学社二维码"),
-        philosophy_icon=get_image_b64("哲学社图标")
+def philosophy(): return render_template('philosophy.html', letter=letter, poster=get_img("哲学社海报"), qr_code=get_img("哲学社二维码"), logo=get_img("哲学社图标"))
+
+@app.route('/')
+def i():
+    m = 'mobile' in request.user_agent.string.lower()
+    return render_template(
+        'mobile_index.html' if m else 'pc_index.html',
+        logo_b64=get_img("青客联盟图标"), qrcode_b64=get_img("青客联盟二维码"),
+        poster_b64=get_img("文娱部宣传海报"), philosophy_icon=get_img("哲学社图标"),
+        philosophy_link=url_for('philosophy'),
+        people=d["p"], timeline=d["t"], qq_group=d["qq"], friend_link=d["link"],
+        open_source_license=d["license"], philosophy_button=d["btn"], resources=d["res"]
     )
 
-# ---------------------- 启动（无任何多余参数） ---------------------- #
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=False)
+if __name__ == '__main__': app.run(host='0.0.0.0', port=int(os.environ.get('PORT',5000)), debug=False)
