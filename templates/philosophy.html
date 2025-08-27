@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no">
+    <title>福清一中哲学社 | 致新生的信</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: "PingFang SC", "Microsoft YaHei", sans-serif; background: #F5F7FA; color: #333; line-height: 1.6; }
+        .gradient-bg { background: linear-gradient(135deg, #4A6CF7 0%, #7B5FFF 100%); }
+        .card { background: #FFF; margin: 1rem; border-radius: 16px; box-shadow: 0 6px 20px rgba(0,0,0,0.05); overflow: hidden; }
+        .card-title { padding: 1.2rem 1.2rem 1rem; font-size: 1.3rem; font-weight: 600; color: #2C3E50; display: flex; align-items: center; }
+        .card-title::before { content: ''; width: 5px; height: 24px; background: linear-gradient(180deg, #4A6CF7 0%, #7B5FFF 100%); border-radius: 3px; margin-right: 0.8rem; }
+        .card-content { padding: 0 1.2rem 1.2rem; font-size: 1rem; color: #555; }
+        .letter-content { line-height: 1.8; padding: 1rem 0; }
+        .letter-content p { margin-bottom: 1rem; text-indent: 2em; }
+        .letter-content strong { color: #4A6CF7; }
+        .poster-box { margin: 1.5rem 0; text-align: center; }
+        .poster { width: 100%; border-radius: 12px; box-shadow: 0 6px 20px rgba(0,0,0,0.1); border: 4px solid #F0F3FF; }
+        .qrcode-box { text-align: center; margin: 1.5rem 0; }
+        .qrcode { width: 160px; height: 160px; margin: 0 auto; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
+        .footer { text-align: center; padding: 1.5rem 1rem 2rem; color: #999; font-size: 0.9rem; }
+        .back-btn { display: block; width: 160px; height: 44px; line-height: 44px; text-align: center; background: linear-gradient(135deg, #4A6CF7 0%, #7B5FFF 100%); color: white; border-radius: 22px; margin: 2rem auto 1rem; text-decoration: none; font-weight: 500; box-shadow: 0 4px 15px rgba(74, 108, 247, 0.2); }
+        .back-btn:active { transform: scale(0.97); box-shadow: 0 2px 8px rgba(74, 108, 247, 0.15); }
+    </style>
+</head>
+<body>
+    <div class="header gradient-bg" style="padding: 2rem 1rem; text-align: center; color: #FFF;">
+        <img src="data:image/png;base64,{{ logo }}" alt="哲学社图标" style="width: 80px; height: 80px; border-radius: 12px; margin: 0 auto 1rem; display: block; border: 3px solid rgba(255,255,255,0.8);">
+        <h1>福清一中“凌空”哲学社</h1>
+        <p>爱智之学 · 思辨之光</p>
+    </div>
+    <div class="card">
+        <div class="card-title">致新生的一封信</div>
+        <div class="card-content">
+            <div class="letter-content">
+                {# 原封不动输出信件内容，保留所有换行和格式 #}
+                {{ letter|replace('\n', '<br>')|safe }}
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-title">宣传海报</div>
+        <div class="card-content">
+            <div class="poster-box">
+                <img src="data:image/png;base64,{{ poster }}" alt="哲学社宣传海报" class="poster">
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-title">加入我们</div>
+        <div class="card-content">
+            <div class="qrcode-box">
+                <img src="data:image/png;base64,{{ qr_code }}" alt="哲学社QQ群二维码" class="qrcode">
+                <div style="margin-top: 1rem; color: #7B5FFF; font-weight: 500;">扫码加入哲学社交流群</div>
+                <div style="margin-top: 0.5rem; color: #666;">群号：981094818</div>
+            </div>
+        </div>
+    </div>
+    <a href="/" class="back-btn">返回青客联盟主页</a>
+
+    <div class="footer">
+        © 2025 福清一中“凌空”哲学社 · 青客联盟协办
+    </div>
+</body>
+</html>

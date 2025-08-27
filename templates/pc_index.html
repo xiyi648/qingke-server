@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>青客联盟 | 电脑端</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: "Microsoft YaHei", "PingFang SC", sans-serif; background: #F5F7FA; color: #333; line-height: 1.6; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
+        .gradient-bg { background: linear-gradient(135deg, #4A6CF7 0%, #7B5FFF 100%); }
+        .card { background: #FFF; margin: 1.5rem 0; border-radius: 16px; box-shadow: 0 6px 20px rgba(0,0,0,0.05); overflow: hidden; transition: all 0.3s; }
+        .card:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
+        .header { padding: 3rem 2rem; text-align: center; color: #FFF; position: relative; }
+        .header img { width: 120px; height: 120px; border-radius: 16px; margin: 0 auto 1.5rem; display: block; border: 4px solid rgba(255,255,255,0.8); box-shadow: 0 6px 20px rgba(0,0,0,0.1); }
+        .header h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: 0.8rem; }
+        .header p { font-size: 1.2rem; opacity: 0.9; }
+        .card-title { padding: 1.5rem 2rem; font-size: 1.5rem; font-weight: 600; color: #2C3E50; display: flex; align-items: center; border-bottom: 1px solid #F3F5FF; }
+        .card-title::before { content: ''; width: 6px; height: 28px; background: linear-gradient(180deg, #4A6CF7 0%, #7B5FFF 100%); border-radius: 4px; margin-right: 1rem; }
+        .card-content { padding: 1.5rem 2rem; font-size: 1.1rem; color: #555; }
+        .intro-text { line-height: 1.8; }
+        .intro-text strong { color: #4A6CF7; }
+        .timeline { margin-top: 1rem; }
+        .timeline-item { position: relative; padding: 0 0 1.5rem 2rem; }
+        .timeline-item::before { content: ''; position: absolute; left: 0; top: 0.8rem; width: 12px; height: 12px; background: #7B5FFF; border-radius: 50%; box-shadow: 0 0 0 4px rgba(123, 95, 255, 0.15); }
+        .timeline-item::after { content: ''; position: absolute; left: 5px; top: 20px; width: 2px; height: calc(100% - 20px); background: #EEF0FF; }
+        .timeline-item:last-child::after { display: none; }
+        .timeline-date { font-weight: 600; color: #4A6CF7; margin-bottom: 0.5rem; }
+        .people-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 1.5rem; }
+        .people-card { background: #F9FAFF; border-radius: 12px; padding: 1.5rem; box-shadow: 0 3px 10px rgba(74, 108, 247, 0.08); transition: all 0.3s; }
+        .people-card:hover { transform: scale(1.03); background: #F0F3FF; }
+        .people-name { font-weight: 600; color: #2C3E50; font-size: 1.2rem; margin-bottom: 0.5rem; }
+        .people-title { font-size: 1rem; color: #7B5FFF; margin-bottom: 0.3rem; }
+        .people-intro { font-size: 0.95rem; color: #666; }
+        .resources { margin-top: 1.5rem; }
+        .resource-btn { display: flex; align-items: center; justify-content: space-between; background: #F5F7FF; border-radius: 12px; padding: 1.2rem; margin-bottom: 1rem; text-decoration: none; color: #333; transition: all 0.3s; }
+        .resource-btn:hover { background: #EEF0FF; transform: translateX(5px); }
+        .resource-name { font-weight: 500; font-size: 1.1rem; }
+        .resource-icon { width: 32px; height: 32px; background: linear-gradient(135deg, #4A6CF7 0%, #7B5FFF 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.2rem; }
+        .poster-box { margin: 1.5rem 0; text-align: center; }
+        .poster { width: 80%; border-radius: 12px; box-shadow: 0 6px 20px rgba(0,0,0,0.1); border: 4px solid #F0F3FF; transition: all 0.3s; }
+        .poster:hover { transform: scale(1.02); box-shadow: 0 8px 25px rgba(0,0,0,0.15); }
+        .poster-desc { margin-top: 1rem; font-size: 1rem; color: #666; }
+        .poster-recommender { color: #7B5FFF; font-weight: 600; }
+        .qq-group { background: #F5F7FF; border-radius: 12px; padding: 2rem; margin: 1.5rem 0; text-align: center; }
+        .qq-title { font-size: 1.3rem; font-weight: 600; color: #4A6CF7; margin-bottom: 1rem; }
+        .qq-number { font-size: 1.6rem; font-weight: 700; color: #7B5FFF; letter-spacing: 3px; margin: 0.5rem 0; }
+        .qrcode { width: 200px; height: 200px; margin: 1rem auto; border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.1); transition: all 0.3s; }
+        .qrcode:hover { transform: scale(1.05); box-shadow: 0 8px 25px rgba(0,0,0,0.15); }
+        .license { background: #F5F7FF; border-radius: 12px; padding: 2rem; margin: 1.5rem 0; text-align: center; transition: all 0.3s; }
+        .license:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
+        .license-title { font-weight: 600; color: #4A6CF7; font-size: 1.2rem; margin-bottom: 0.8rem; }
+        .license-content { color: #666; font-size: 1.1rem; }
+        .friend-link { text-align: center; padding: 2rem 0; }
+        .friend-btn { display: inline-block; padding: 1rem 3rem; background: linear-gradient(135deg, #4A6CF7 0%, #7B5FFF 100%); color: white; border-radius: 30px; text-decoration: none; font-weight: 500; font-size: 1.1rem; box-shadow: 0 6px 20px rgba(74, 108, 247, 0.2); transition: all 0.3s; }
+        .friend-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(74, 108, 247, 0.25); }
+        .footer { text-align: center; padding: 2rem 1rem 3rem; color: #999; font-size: 1rem; }
+        .philosophy-container { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            padding: 3rem 2rem; 
+            text-align: center; 
+        }
+        .philosophy-icon { 
+            width: 150px; 
+            height: 150px; 
+            border-radius: 16px; 
+            margin-bottom: 2rem; 
+            box-shadow: 0 6px 20px rgba(74, 108, 247, 0.1); 
+            transition: all 0.3s; 
+        }
+        .philosophy-icon:hover { transform: scale(1.05); }
+        .philosophy-btn { font-size: 1.2rem; padding: 1rem 3.5rem; }
+        .philosophy-recommender { 
+            margin-top: 1rem; 
+            color: #7B5FFF; 
+            font-size: 0.95rem; 
+            opacity: 0.9; 
+        }
+    </style>
+</head>
+<body>
+    <div class="header gradient-bg">
+        <div class="container">
+            <img src="data:image/png;base64,{{ logo_b64 }}" alt="青客联盟">
+            <h1>青客联盟</h1>
+            <p>技术为公 · 开源普惠</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- 联盟介绍 -->
+        <div class="card">
+            <div class="card-title">联盟介绍</div>
+            <div class="card-content">
+                <p class="intro-text">青客联盟是<strong>非商业化技术社群</strong>，以「技术普惠」为核心：<br>
+                ✦ 用开源共享推动技术平等，坚守「清清白白」的技术伦理；<br>
+                ✦ 延续黑客极客精神，借鉴红客联盟基因，构建中立透明生态；<br>
+                ✦ 以「青出于蓝」的创新，让技术成为社会进步的普惠力量。</p>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-title">发展历程</div>
+            <div class="card-content">
+                <div class="timeline">
+                    {% for item in timeline %}
+                    <div class="timeline-item">
+                        <div class="timeline-date">{{ item.date }}</div>
+                        <div>{{ item.event }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-title">核心成员</div>
+            <div class="card-content">
+                <div class="people-grid">
+                    {% for person in people %}
+                    <div class="people-card">
+                        <div class="people-name">{{ person.name }}</div>
+                        <div class="people-title">{{ person.title }}</div>
+                        <div class="people-intro">{{ person.intro }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-title">资源下载</div>
+            <div class="card-content">
+                <div class="resources">
+                    {% for res in resources %}
+                    <a href="{{ res.url }}" class="resource-btn" download>
+                        <div class="resource-name">{{ res.name }}</div>
+                        <div class="resource-icon">↓</div>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-title">哲学社宣传</div>
+            <div class="card-content">
+                <div class="philosophy-container">
+                    <img src="data:image/png;base64,{{ philosophy_icon }}" alt="哲学社图标" class="philosophy-icon">
+                    <a href="{{ philosophy_link }}" class="friend-btn philosophy-btn">「凌空」哲学社，来看看吗？</a>
+                    <div class="philosophy-recommender">
+                        推荐人：文科部主任 潦草杂草汤
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-title">文娱部宣传</div>
+            <div class="card-content">
+                <div class="poster-box">
+                    <img src="data:image/jpeg;base64,{{ poster_b64 }}" alt="文娱部宣传海报" class="poster">
+                    <div class="poster-desc">
+                        推荐人：<span class="poster-recommender">副盟主风吹不动、测试部主任蓝莓酸</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-title">开源许可</div>
+            <div class="card-content">
+                <div class="license">
+                    <div class="license-title">开源协议</div>
+                    <div class="license-content">{{ open_source_license }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-title">加入我们</div>
+            <div class="card-content">
+                <div class="qq-group">
+                    <div class="qq-title">QQ交流群</div>
+                    <div class="qq-number">{{ qq_group }}</div>
+                    <img src="data:image/jpeg;base64,{{ qrcode_b64 }}" alt="QQ群二维码" class="qrcode">
+                    <div>扫码或搜索群号加入</div>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-title">友情链接</div>
+            <div class="card-content">
+                <div class="friend-link">
+                    <a href="{{ friend_link.url }}" target="_blank" class="friend-btn">
+                        {{ friend_link.name }}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        © 2025 青客联盟 · 非商业化技术社群
+    </div>
+</body>
+</html>
