@@ -153,10 +153,10 @@ def handle_connect():
     emit('heartbeat', {'status': 'alive'})
 
 if __name__ == '__main__':
-    socketio.run(
-        app,
-        host='0.0.0.0',
-        port=1126,
-        debug=False,
-        use_reloader=False
-    )
+    socketio = SocketIO(
+    app,
+    cors_allowed_origins="*",
+    logger=False,
+    engineio_logger=False,
+    async_mode='eventlet'  # 强制 eventlet 模式，适配 Gunicorn worker
+)
