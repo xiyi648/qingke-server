@@ -12,7 +12,7 @@ app = Flask(
     template_folder=os.path.join(os.path.dirname(__file__), 'templates'),
     static_folder=os.path.abspath(os.path.join(os.path.dirname(__file__), 'static'))
 )
-app.config['SERVER_NAME'] = '0.0.0.0:1126'  # 保留原始配置
+#app.config['SERVER_NAME'] = '0.0.0.0:1126'  # 保留原始配置
 app.config['SECRET_KEY'] = 'qingke_console_secret'  
 socketio = SocketIO(
     app,
