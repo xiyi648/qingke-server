@@ -65,36 +65,7 @@
         .download-toast.show { transform: translateX(-50%) translateY(0); }
         .philosophy-container { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem 1rem; aspect-ratio: 1/1; }
         .philosophy-icon { width: 80px; height: 80px; border-radius: 12px; margin-bottom: 1.5rem; box-shadow: 0 4px 15px rgba(74, 108, 247, 0.1); }
-        
-        /* 新增折叠功能样式 - 完全匹配原有风格 */
-        .collapse-container { position: relative; }
-        .collapse-content { overflow: hidden; transition: max-height 0.3s ease; }
-        .collapse-remain { display: none; }
-        .collapse-btn {
-            display: block;
-            width: 100%;
-            padding: 0.8rem 0;
-            margin-top: 0.5rem;
-            text-align: center;
-            color: #7B5FFF;
-            font-size: 0.95rem;
-            font-weight: 500;
-            background: transparent;
-            border: none;
-            cursor: pointer;
-            transition: color 0.2s;
-        }
-        .collapse-btn:active { color: #4A6CF7; }
-        .collapse-btn::after {
-            content: '▼';
-            display: inline-block;
-            margin-left: 0.5rem;
-            font-size: 0.8rem;
-            transition: transform 0.2s;
-        }
-        .collapse-btn.collapsed::after { transform: rotate(180deg); }
-        .collapse-btn.hidden { display: none; }
-    </style>
+</style>
 </head>
 <body>
     <div class="header gradient-bg">
@@ -102,43 +73,28 @@
         <h1>青客联盟</h1>
         <p>技术为公 · 开源普惠</p>
     </div>
-
-    <!-- 联盟介绍 - 折叠功能 -->
     <div class="card">
         <div class="card-title">联盟介绍</div>
         <div class="card-content">
-            <div class="collapse-container">
-                <div class="collapse-content" id="intro-collapse">
-                    <p class="intro-text">青客联盟是<strong>非商业化技术社群</strong>，以「技术普惠」为核心：<br>
-                    ✦ 用开源共享推动技术平等，坚守「清清白白」的技术伦理；<br>
-                    ✦ 延续黑客极客精神，借鉴红客联盟基因，构建中立透明生态；<br>
-                    ✦ 以「青出于蓝」的创新，让技术成为社会进步的普惠力量。</p>
-                </div>
-                <button class="collapse-btn hidden" id="intro-btn" onclick="toggleCollapse('intro')">展开</button>
-            </div>
+            <p class="intro-text">青客联盟是<strong>非商业化技术社群</strong>，以「技术普惠」为核心：<br>
+            ✦ 用开源共享推动技术平等，坚守「清清白白」的技术伦理；<br>
+            ✦ 延续黑客极客精神，借鉴红客联盟基因，构建中立透明生态；<br>
+            ✦ 以「青出于蓝」的创新，让技术成为社会进步的普惠力量。</p>
         </div>
     </div>
-
-    <!-- 发展历程 - 折叠功能 -->
     <div class="card">
         <div class="card-title">发展历程</div>
         <div class="card-content">
-            <div class="collapse-container">
-                <div class="timeline collapse-content" id="timeline-collapse">
-                    {% for index, item in enumerate(timeline) %}
-                        {% if index < 3 %}
-                        <div class="timeline-item show-item">{{ item.date }}<br>{{ item.event }}</div>
-                        {% else %}
-                        <div class="timeline-item collapse-remain">{{ item.date }}<br>{{ item.event }}</div>
-                        {% endif %}
-                    {% endfor %}
+            <div class="timeline">
+                {% for item in timeline %}
+                <div class="timeline-item">
+                    <div class="timeline-date">{{ item.date }}</div>
+                    <div>{{ item.event }}</div>
                 </div>
-                <button class="collapse-btn" id="timeline-btn" onclick="toggleCollapse('timeline')">展开</button>
+                {% endfor %}
             </div>
         </div>
     </div>
-
-    <!-- 核心成员 - 无折叠功能 -->
     <div class="card">
         <div class="card-title">核心成员</div>
         <div class="card-content">
@@ -153,90 +109,56 @@
             </div>
         </div>
     </div>
-
-    <!-- 福建省综合评价相关开源 - 折叠功能 -->
     <div class="card">
         <div class="card-title">福建省综合评价相关开源</div>
         <div class="card-content">
-            <div class="collapse-container">
-                <div class="resources collapse-content" id="resources-collapse">
-                    {% for index, res in enumerate(resources) %}
-                        {% if index < 3 %}
-                        <a href="{{ res.url }}" class="resource-btn show-item" download onclick="showToast('正在下载 {{ res.name }}')">
-                            <div class="resource-name">{{ res.name }}</div>
-                            <div class="resource-icon">↓</div>
-                        </a>
-                        {% else %}
-                        <a href="{{ res.url }}" class="resource-btn collapse-remain" download onclick="showToast('正在下载 {{ res.name }}')">
-                            <div class="resource-name">{{ res.name }}</div>
-                            <div class="resource-icon">↓</div>
-                        </a>
-                        {% endif %}
-                    {% endfor %}
-                </div>
-                <button class="collapse-btn" id="resources-btn" onclick="toggleCollapse('resources')">展开</button>
+            <div class="resources">
+                {% for res in resources %}
+                <a href="{{ res.url }}" class="resource-btn" download onclick="showToast('正在下载 {{ res.name }}')">
+                    <div class="resource-name">{{ res.name }}</div>
+                    <div class="resource-icon">↓</div>
+                </a>
+                {% endfor %}
             </div>
         </div>
     </div>
-
-    <!-- 开源许可 - 折叠功能 -->
+   
     <div class="card">
         <div class="card-title">开源许可</div>
         <div class="card-content">
-            <div class="collapse-container">
-                <div class="collapse-content" id="license-collapse">
-                    <div class="license">
-                        <div class="license-title">开源协议</div>
-                        <div class="license-content">{{ open_source_license }}</div>
-                    </div>
-                </div>
-                <button class="collapse-btn hidden" id="license-btn" onclick="toggleCollapse('license')">展开</button>
+            <div class="license">
+                <div class="license-title">开源协议</div>
+                <div class="license-content">{{ open_source_license }}</div>
             </div>
         </div>
     </div>
-
-    <!-- 加入我们 - 折叠功能 -->
     <div class="card">
         <div class="card-title">加入我们</div>
         <div class="card-content">
-            <div class="collapse-container">
-                <div class="collapse-content" id="join-collapse">
-                    <div class="qq-group">
-                        <div class="qq-title">QQ交流群</div>
-                        <div class="qq-number">{{ qq_group }}</div>
-                        <img src="data:image/jpeg;base64,{{ qrcode_b64 }}" alt="QQ群二维码" class="qrcode">
-                        <div>扫码或搜索群号加入</div>
-                    </div>
-                </div>
-                <button class="collapse-btn hidden" id="join-btn" onclick="toggleCollapse('join')">展开</button>
+            <div class="qq-group">
+                <div class="qq-title">QQ交流群</div>
+                <div class="qq-number">{{ qq_group }}</div>
+                <img src="data:image/jpeg;base64,{{ qrcode_b64 }}" alt="QQ群二维码" class="qrcode">
+                <div>扫码或搜索群号加入</div>
             </div>
         </div>
     </div>
-
-    <!-- 友情链接 - 折叠功能 -->
     <div class="card">
         <div class="card-title">友情链接</div>
         <div class="card-content">
-            <div class="collapse-container">
-                <div class="collapse-content" id="friend-collapse">
-                    <div class="friend-link">
-                        <a href="{{ friend_link.url }}" target="_blank" class="friend-btn">
-                            {{ friend_link.name }}
-                        </a>
-                    </div>
-                </div>
-                <button class="collapse-btn hidden" id="friend-btn" onclick="toggleCollapse('friend')">展开</button>
+            <div class="friend-link">
+                <a href="{{ friend_link.url }}" target="_blank" class="friend-btn">
+                    {{ friend_link.name }}
+                </a>
             </div>
         </div>
     </div>
-
     <div class="footer">
         © 2025 青客联盟 · 非商业化技术社群
     </div>
     <div class="download-toast" id="toast">下载中...</div>
-
     <script>
-        // 保留原有提示功能
+        // 仅保留提示功能，删除小程序相关代码
         function showToast(text) {
             const toast = document.getElementById('toast');
             toast.textContent = text;
@@ -245,44 +167,6 @@
                 toast.classList.remove('show');
             }, 2000);
         }
-
-        // 新增折叠/展开核心逻辑
-        function toggleCollapse(type) {
-            const collapseBtn = document.getElementById(`${type}-btn`);
-            const remainItems = document.querySelectorAll(`#${type}-collapse .collapse-remain`);
-            const isExpanded = collapseBtn.textContent === '收起';
-
-            // 切换显示/隐藏剩余项
-            remainItems.forEach(item => {
-                item.style.display = isExpanded ? 'none' : 'block';
-            });
-
-            // 切换按钮文字和样式
-            collapseBtn.textContent = isExpanded ? '展开' : '收起';
-            collapseBtn.classList.toggle('collapsed', !isExpanded);
-        }
-
-        // 初始化折叠功能
-        document.addEventListener('DOMContentLoaded', function() {
-            // 遍历所有带折叠功能的模块
-            const collapseTypes = ['timeline', 'resources', 'intro', 'license', 'join', 'friend'];
-            
-            collapseTypes.forEach(type => {
-                const collapseBtn = document.getElementById(`${type}-btn`);
-                const remainItems = document.querySelectorAll(`#${type}-collapse .collapse-remain`);
-                
-                // 如果没有剩余项，隐藏折叠按钮
-                if (remainItems.length === 0) {
-                    collapseBtn.classList.add('hidden');
-                } else {
-                    // 默认隐藏剩余项
-                    remainItems.forEach(item => {
-                        item.style.display = 'none';
-                    });
-                    collapseBtn.classList.remove('hidden');
-                }
-            });
-        });
     </script>
 </body>
 </html>
