@@ -1,13 +1,11 @@
 from flask import Flask, render_template, send_from_directory, url_for, request
 import os
 import base64
-import requests  # 新增：保活任务需要
-import time      # 新增：保活任务需要
+import requests 
+import time     
 
-# 1. 初始化Flask应用（复用同一个app，无需修改）
 app = Flask(__name__, template_folder='templates', static_folder='static')
 
-# 2. 图片处理函数（无需修改）
 def get_image_base64(keyword):
     for filename in os.listdir(app.static_folder):
         if keyword in filename and filename.split('.')[-1] in ['png', 'jpg', 'jpeg']:
@@ -15,7 +13,6 @@ def get_image_base64(keyword):
                 return base64.b64encode(f.read()).decode()
     return ""
 
-# 3. 哲学社信件（完整保留，无需修改）
 PHILOSOPHY_LETTER = """福清一中“凌空”哲学社给新生们的一封信
 
 To 即将进入一中的学弟学妹们：
@@ -49,14 +46,13 @@ P.S. 最后的最后，若有意愿加入哲学社者，请扫码入群了解更
 某副社长
 2025年七月于凤凰山"""
 
-# 4. 前端核心数据（resources后续生成，无需修改）
 CORE_DATA = {
     "people": [
         {"name": "知天易", "title": "盟主", "intro": "曾获物理竞赛省一"},
         {"name": "潦草杂草汤", "title": "文科部主任", "intro": "曾获福清市新时代好少年"},
         {"name": "风吹不动", "title": "副盟主", "intro": "创始人"},
         {"name": "被猫吃了", "title": "联盟驻信息社外交官", "intro": "低调的信竞生"},
-        {"name": "蓝莓酸", "title": "测试部主任", "intro": "及时雨"}
+        {"name": "蓝莓酸", "title": "测试部主任", "intro": "校志协会长"}
     ],
     "timeline": [
         {"date": "2025/02/03", "event": "风吹不动和潦草杂草汤 用钱帮助了一位在寒风中辛苦卖菜的削瘦老人，青客联盟的精神由此萌发 "},
@@ -64,7 +60,7 @@ CORE_DATA = {
         {"date": "2025/07/15", "event": "一致通过知天易建议，风吹不动开放综评自动化相关源代码"},
         {"date": "2025/07/16", "event": "风吹不动任命知天易为代理盟主"},
         {"date": "2025/08/08", "event": "知天易接任盟主"},
-        {"date": "2025/08/16", "event": "为了纪念日本宣布无条件投降80周年风吹不动和潦草杂草汤用Python开发了一款文字游戏《青春记忆1931-1945》，并上传抖音。隔日风吹不动调整联盟职责归属"}
+        {"date": "2025/12/04", "event": "由知天易主导，风吹不动协作开发的三维伊辛模型数值模拟上线并开源"}
     ],
     "qq_group": "874636477",
     "friend_link": {"name": "福清一中信息社", "url": "https://guess.gsqclub.cn/account/registerStep1.php"},
@@ -73,7 +69,6 @@ CORE_DATA = {
     "resources": []
 }
 
-# 5. 定义路由（保留原所有路由，新增保活路由）
 @app.route('/download/<filename>')
 def download_file(filename):
     download_path = os.path.join(app.static_folder, 'download', filename)
@@ -95,23 +90,20 @@ def index_page():
     }
     return render_template('mobile_index.html' if is_mobile else 'pc_index.html', **imgs, **CORE_DATA)
 
-# 新增保活路由（改路径为/keep-alive，避免与主路由/冲突）
 @app.route('/keep-alive')
 def fake_web():
     return "I'm just a keep-alive bot 🤫"
 
-# 6. 生成下载资源（路由定义后，上下文内执行，无需修改）
 with app.test_request_context():
     download_dir = os.path.join(app.static_folder, 'download')
     if os.path.exists(download_dir):
         CORE_DATA["resources"] = [{"name": f, "url": url_for('download_file', filename=f)} for f in os.listdir(download_dir) if os.path.isfile(os.path.join(download_dir, f))]
 
-# 新增保活任务函数（完全复用原代码，无修改）
 def keep_alive_task():
     TARGETS = [
-        "https://qklm.xyz",       # 项目1
-        "https://wyb.qklm.xyz",   # 项目2
-        "https://twobaohuo1.onrender.com"  # 服务A域名
+        "https://qklm.xyz",     
+        "https://wyb.qklm.xyz", 
+        "https://twobaohuo1.onrender.com" 
     ]
     while True:
         for url in TARGETS:
@@ -120,13 +112,10 @@ def keep_alive_task():
                 print(f"✅ 访问 {url} 成功")
             except Exception as e:
                 print(f"❌ 访问 {url} 失败: {str(e)}")
-        time.sleep(120)  # 每2分钟循环
-
-# 7. 启动应用（修改启动逻辑，添加保活线程）
+        time.sleep(120) 
 if __name__ == '__main__':
-    import threading  # 新增：启动后台线程需要
+    import threading
     t = threading.Thread(target=keep_alive_task)
     t.daemon = True
     t.start()
-    # 保留原启动代码，无修改
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=False)
