@@ -151,15 +151,15 @@
     </div>
     <div class="download-toast" id="toast">下载中...</div>
     <script>
-        功能 showToast(文本) {
-            Const 吐司=文件.getElementById('吐司');
-            吐司.textContent=文本;
-            吐司.classList.添加('显示');
-            setTimeout(()=>{
-                吐司.classList.移除('显示');
+        function showToast(text) {
+            const toast = document.getElementById('toast');
+            toast.textContent = text;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
             }, 2000);
         }
-    </script>
+     </script>
 </body>
 
 </html>
